@@ -108,7 +108,7 @@ CheckBtn.Parent = MainFrame
 local Status = Instance.new("TextLabel")
 Status.Size = UDim2.new(1, 0, 0, 25)
 Status.Position = UDim2.new(0, 0, 1, -25)
-Status.Text = "/ SWILL — БЕЗ ГРАНИЦ | Готов"
+Status.Text = "/ FE Bypass | Готов"
 Status.BackgroundTransparency = 1
 Status.TextColor3 = Color3.fromRGB(150, 255, 150)
 Status.Font = Enum.Font.SourceSans
@@ -136,8 +136,8 @@ BypassBtn.MouseButton1Down:Connect(function()
     runFEBypass()
     Status.Text = "Статус: FE Bypass выполнен"
     Status.TextColor3 = Color3.fromRGB(100, 255, 100)
-    sendCommand("ServerMessage FE Bypass Executed")
-    Status.Text = "/ SWILL — БЕЗ ГРАНИЦ | Готов"
+    sendCommand("ServerMessage FE Bypassed")
+    Status.Text = "/ FE Bypass | Готов"
     Status.TextColor3 = Color3.fromRGB(150, 255, 150)
 end)
 
