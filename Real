@@ -131,14 +131,7 @@ end)
 
 -- ========== НАЖАТИЯ КНОПОК (БЕЗ ЗАДЕРЖЕК) ==========
 BypassBtn.MouseButton1Down:Connect(function()
-    Status.Text = "Статус: Выполнение FE Bypass..."
-    Status.TextColor3 = Color3.fromRGB(255, 200, 100)
     runFEBypass()
-    Status.Text = "Статус: FE Bypass выполнен"
-    Status.TextColor3 = Color3.fromRGB(100, 255, 100)
-    sendCommand("ServerMessage FE Bypassed")
-    Status.Text = "/ FE Bypass | Готов"
-    Status.TextColor3 = Color3.fromRGB(150, 255, 150)
 end)
 
 CheckBtn.MouseButton1Down:Connect(function()
